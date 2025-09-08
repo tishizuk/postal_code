@@ -1,7 +1,17 @@
 import streamlit as st
 import re
-from postal_data import PostalCodeService
-from settings import show_settings_page, get_search_mode, show_data_source_info
+import sys
+import os
+
+# パスの追加（Streamlit Cloud対応）
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+try:
+    from postal_data import PostalCodeService
+    from settings import show_settings_page, get_search_mode, show_data_source_info
+except ImportError as e:
+    st.error(f"モジュールのインポートエラー: {e}")
+    st.stop()
 
 # ページ設定
 st.set_page_config(
@@ -243,7 +253,7 @@ def address_to_postal_search(postal_service):
     with col2:
         address = st.text_input(
             "住所を入力",
-            placeholder="例: 千葉県千葉市中央区青葉町",
+            placeholder="例: 東京都渋谷区恵比寿",
             help="都道府県名を含む住所を入力してください",
             key="address_input",
             max_chars=100,
@@ -301,17 +311,17 @@ def display_error_with_suggestions(address: str):
         st.markdown("""
         **検索のコツ:**
         - 都道府県名を含めて入力してください
-        - 例: `千葉県千葉市中央区青葉町`
+        - 例: `東京都渋谷区恵比寿`
         - より具体的な住所を入力してください
         """)
     
     # サンプル検索を提案
     st.markdown("### 💡 サンプル検索")
     sample_addresses = [
-        "東京都千代田区",
-        "大阪府大阪市北区", 
-        "埼玉県熊谷市",
-        "千葉県千葉市中央区"
+        "東京都渋谷区",
+        "大阪府大阪市梅田", 
+        "神奈川県横浜市",
+        "愛知県名古屋市"
     ]
     
     cols = st.columns(len(sample_addresses))

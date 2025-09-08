@@ -134,6 +134,30 @@ A: 正しい7桁の郵便番号を入力しているか確認してください
 
 このプロジェクトはMITライセンスの下で公開されています。
 
+## Streamlit Cloudデプロイ
+
+### デプロイ設定
+
+- **Python**: 3.11 (`runtime.txt`で指定)
+- **メインファイル**: `app.py`
+- **依存関係**: `requirements.txt`
+
+### デプロイ前の確認事項
+
+1. すべてのファイルがGitHubにプッシュされていること
+2. `requirements.txt`が最新であること
+3. `runtime.txt`でPythonバージョンが指定されていること
+4. `.streamlit/config.toml`が設定されていること
+
+### ローカルテスト
+
+デプロイ前にローカルでテストを実行してください：
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
 ## 貢献
 
 バグ報告や機能提案は大歓迎です！
