@@ -5,7 +5,13 @@
 """
 
 import streamlit as st
-from postal_database import setup_postal_database
+
+# オプショナルインポート（デプロイ時には使用されない）
+try:
+    from postal_database import setup_postal_database
+    HAS_DATABASE = True
+except ImportError:
+    HAS_DATABASE = False
 
 
 def show_settings_page():
@@ -70,15 +76,19 @@ def show_settings_page():
         - 初回セットアップが必要（約20MB）
         """)
         
-        # データベースセットアップ
-        db = setup_postal_database()
-        
-        if db:
-            st.session_state.search_mode = "database"
-            st.session_state.postal_db = db
+        # データベースセットアップ（利用可能な場合のみ）
+        if HAS_DATABASE:
+            db = setup_postal_database()
+            
+            if db:
+                st.session_state.search_mode = "database"
+                st.session_state.postal_db = db
+            else:
+                st.session_state.search_mode = "sample"
+                st.warning("データベースが利用できないため、サンプルデータモードに戻ります。")
         else:
-            st.session_state.search_mode = "sample"
-            st.warning("データベースが利用できないため、サンプルデータモードに戻ります。")
+            st.warning("データベース機能は利用できません（pandas未インストール）。")
+            st.session_state.search_mode = "api"
     
     st.markdown("---")
     

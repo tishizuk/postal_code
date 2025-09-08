@@ -3,6 +3,12 @@ import re
 import sys
 import os
 
+# デバッグ情報（開発時のみ）
+if os.getenv('STREAMLIT_ENV') == 'development':
+    st.sidebar.write(f"Python version: {sys.version}")
+    st.sidebar.write(f"Working directory: {os.getcwd()}")
+    st.sidebar.write(f"Python path: {sys.path[:3]}")
+
 # パスの追加（Streamlit Cloud対応）
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
@@ -11,6 +17,8 @@ try:
     from settings import show_settings_page, get_search_mode, show_data_source_info
 except ImportError as e:
     st.error(f"モジュールのインポートエラー: {e}")
+    st.error(f"現在のディレクトリ: {os.getcwd()}")
+    st.error(f"Pythonパス: {sys.path}")
     st.stop()
 
 # ページ設定
