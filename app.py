@@ -1,7 +1,17 @@
 import streamlit as st
 import re
-from postal_data import PostalCodeService
-from settings import show_settings_page, get_search_mode, show_data_source_info
+import sys
+import os
+
+# パスの追加（Streamlit Cloud対応）
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+try:
+    from postal_data import PostalCodeService
+    from settings import show_settings_page, get_search_mode, show_data_source_info
+except ImportError as e:
+    st.error(f"モジュールのインポートエラー: {e}")
+    st.stop()
 
 # ページ設定
 st.set_page_config(
