@@ -1,6 +1,7 @@
 import streamlit as st
 import re
 from postal_data import PostalCodeService
+from settings import show_settings_page, get_search_mode, show_data_source_info
 
 # ページ設定
 st.set_page_config(
@@ -61,6 +62,25 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def main():
+    # サイドバーでページ選択
+    st.sidebar.title("📮 郵便番号アプリ")
+    page = st.sidebar.selectbox(
+        "ページを選択:",
+        ["🏠 検索", "⚙️ 設定", "📖 使い方"]
+    )
+    
+    # 現在のデータソース情報を表示
+    show_data_source_info()
+    
+    if page == "🏠 検索":
+        show_search_page()
+    elif page == "⚙️ 設定":
+        show_settings_page()
+    elif page == "📖 使い方":
+        show_help_page()
+
+def show_search_page():
+    """検索ページの表示"""
     # ヘッダー
     st.markdown('<h1 class="main-header">📮 郵便番号・住所検索アプリ</h1>', unsafe_allow_html=True)
     st.markdown('<p style="text-align: center; color: #666;">郵便番号⇄住所の相互検索ができます</p>', unsafe_allow_html=True)
@@ -78,35 +98,107 @@ def main():
     with tab2:
         st.markdown("### 住所から郵便番号を検索")
         address_to_postal_search(postal_service)
+
+def show_help_page():
+    """使い方ページの表示"""
+    st.title("📖 使い方・ヘルプ")
     
-    # 使い方の説明
-    st.markdown("---")
-    with st.expander("💡 使い方"):
+    # 基本的な使い方
+    st.markdown("## 🔍 基本的な使い方")
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown("### � 郵便番号 → 住所検索")
         st.markdown("""
-        **📮 郵便番号 → 住所検索:**
-        - 郵便番号は7桁の数字で入力してください
-        - ハイフン（-）があってもなくても検索できます
-        - 例: `100-0001` または `1000001`
+        1. 「🏠 検索」ページを開く
+        2. 「📮 郵便番号 → 住所」タブを選択
+        3. 7桁の郵便番号を入力
+        4. 🔍検索ボタンをクリック
         
-        **🏠 住所 → 郵便番号検索:**
-        - 都道府県名を含む住所を入力してください
-        - 部分一致で検索します
-        - 例: `東京都千代田区丸の内` や `大阪市北区梅田`
+        **入力例:**
+        - `100-0001`
+        - `1000001`
+        """)
+    
+    with col2:
+        st.markdown("### 🏠 住所 → 郵便番号検索")
+        st.markdown("""
+        1. 「🏠 検索」ページを開く
+        2. 「🏠 住所 → 郵便番号」タブを選択
+        3. 都道府県を含む住所を入力
+        4. 🔍検索ボタンをクリック
         
-        **🔍 検索について:**
-        - 日本郵便の郵便番号データを使用しています
-        - インターネット接続が必要です
-        - 住所検索は主要地域のサンプルデータを使用
+        **入力例:**
+        - `東京都千代田区丸の内`
+        - `大阪市北区梅田`
+        """)
+    
+    st.markdown("---")
+    
+    # データソースの説明
+    st.markdown("## � データソースについて")
+    
+    st.markdown("### 選択可能なデータソース")
+    
+    with st.expander("🌐 HeartRails API"):
+        st.markdown("""
+        **概要:** 無料の住所検索APIを使用した全国対応版
         
-        **📋 結果の活用:**
-        - 検索結果はコピーしやすい形式で表示されます
-        - ふりがな情報も確認できます（郵便番号検索）
+        **メリット:**
+        - 全国の住所に対応
+        - 無料で利用可能
+        - セットアップ不要
+        
+        **デメリット:**
+        - インターネット接続が必要
+        - API制限あり
+        - ネットワーク状況により応答速度が変動
+        
+        **推奨用途:** 住所から郵便番号の検索
+        """)
+    
+    with st.expander("� zipcloud API"):
+        st.markdown("""
+        **概要:** 郵便番号から住所への変換APIとシステム的逆引き検索
+        
+        **メリット:**
+        - 日本郵便の公式データベースと連携
+        - 全国対応
+        - 高い精度
+        - 逆引き検索対応
+        
+        **デメリット:**
+        - インターネット接続が必要
+        - 大量検索時の制限
+        
+        **推奨用途:** 郵便番号から住所、および住所から郵便番号の両方向検索
+        """)
+    
+    st.markdown("---")
+    
+    # トラブルシューティング
+    st.markdown("## 🛠️ トラブルシューティング")
+    
+    with st.expander("❓ よくある質問"):
+        st.markdown("""
+        **Q: 検索結果が表示されない**
+        A: 以下をご確認ください：
+        - 郵便番号は7桁で入力されているか
+        - 住所に都道府県名が含まれているか
+        - インターネット接続は正常か（API使用時）
+        
+        **Q: 住所検索の精度を上げるには？**
+        A: より詳細な住所を入力してください。「東京都千代田区」より「東京都千代田区丸の内」の方が精度が高くなります。
+        
+        **Q: データベースの構築に失敗する**
+        A: インターネット接続とディスク容量（約50MB）をご確認ください。
         """)
     
     # フッター
     st.markdown("---")
     st.markdown(
-        '<p style="text-align: center; color: #888; font-size: 12px;">郵便番号データ提供: zipcloud API | 住所検索: サンプルデータ</p>', 
+        '<p style="text-align: center; color: #888; font-size: 12px;">データ提供: zipcloud API, HeartRails API, 日本郵便</p>', 
         unsafe_allow_html=True
     )
 
@@ -151,7 +243,7 @@ def address_to_postal_search(postal_service):
     with col2:
         address = st.text_input(
             "住所を入力",
-            placeholder="例: 東京都千代田区丸の内 または 大阪市北区梅田",
+            placeholder="例: 千葉県千葉市中央区青葉町",
             help="都道府県名を含む住所を入力してください",
             key="address_input",
             max_chars=100,
@@ -164,17 +256,72 @@ def address_to_postal_search(postal_service):
     if search_button or address:
         if address and len(address.strip()) >= 2:
             with st.spinner("郵便番号を検索中..."):
+                # APIのみで検索
                 results = postal_service.search_postal_code_by_address(address)
             
             if results:
                 display_postal_results(results)
             else:
-                display_error(
-                    "該当する郵便番号が見つかりませんでした", 
-                    "都道府県名を含む住所を入力してください。\n現在は主要地域のみ対応しています。"
-                )
+                display_error_with_suggestions(address)
         elif address:
             display_error("入力が短すぎます", "2文字以上の住所を入力してください。")
+
+def _extract_prefecture(address: str) -> str:
+    """住所から都道府県を抽出"""
+    prefectures = [
+        "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
+        "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
+        "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県",
+        "静岡県", "愛知県", "三重県", "滋賀県", "京都府", "大阪府", "兵庫県",
+        "奈良県", "和歌山県", "鳥取県", "島根県", "岡山県", "広島県", "山口県",
+        "徳島県", "香川県", "愛媛県", "高知県", "福岡県", "佐賀県", "長崎県",
+        "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"
+    ]
+    
+    for pref in prefectures:
+        if pref in address:
+            return pref
+    return None
+
+def display_error_with_suggestions(address: str):
+    """エラーメッセージと提案を表示"""
+    st.markdown('<div class="error-message">', unsafe_allow_html=True)
+    st.markdown("### ❌ 該当する郵便番号が見つかりませんでした")
+    
+    # より具体的な提案
+    pref = _extract_prefecture(address)
+    if pref:
+        st.markdown(f"""
+        **{pref}の検索のために:**
+        - より詳細な住所（区、町名など）を入力してください
+        - 住所の表記を変えてみてください（例：「丁目」→「町」）
+        - 全角・半角の違いがないか確認してください
+        """)
+    else:
+        st.markdown("""
+        **検索のコツ:**
+        - 都道府県名を含めて入力してください
+        - 例: `千葉県千葉市中央区青葉町`
+        - より具体的な住所を入力してください
+        """)
+    
+    # サンプル検索を提案
+    st.markdown("### 💡 サンプル検索")
+    sample_addresses = [
+        "東京都千代田区",
+        "大阪府大阪市北区", 
+        "埼玉県熊谷市",
+        "千葉県千葉市中央区"
+    ]
+    
+    cols = st.columns(len(sample_addresses))
+    for i, sample in enumerate(sample_addresses):
+        with cols[i]:
+            if st.button(f"📍 {sample}", key=f"sample_{i}"):
+                st.session_state.address_input = sample
+                st.rerun()
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 def display_address_result(result):
     """住所検索結果の表示"""

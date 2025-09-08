@@ -98,9 +98,8 @@ class PostalCodeService:
             # HeartRails Geo APIエンドポイント
             api_url = "https://geoapi.heartrails.com/api/json"
             params = {
-                "method": "suggest",
-                "keyword": address,
-                "matching": "like"
+                "method": "searchByGeoLocation",
+                "area": address
             }
             
             response = requests.get(api_url, params=params, timeout=10)
@@ -229,34 +228,12 @@ class PostalCodeService:
         if query_clean == target_clean:
             return 1.0
         
-        # 重要な地名が含まれているかチェック
-        query_parts = []
-        if '青葉町' in query_clean:
-            query_parts.append('青葉町')
-        if '千葉市中央区' in query_clean:
-            query_parts.append('千葉市中央区')
-        elif '中央区' in query_clean:
-            query_parts.append('中央区')
-        if '千葉県' in query_clean:
-            query_parts.append('千葉県')
-        
-        # 重要パーツのマッチング率を計算
-        important_match_count = 0
-        for part in query_parts:
-            if part in target_clean:
-                important_match_count += 1
-        
-        if query_parts and important_match_count == len(query_parts):
-            return 0.99  # 重要な要素が全て一致
-        elif important_match_count > 0:
-            return 0.8 + (important_match_count / len(query_parts)) * 0.15
-        
         # 部分一致
         if query_clean in target_clean:
-            return 0.75
+            return 0.95
         
         if target_clean in query_clean:
-            return 0.7
+            return 0.9
         
         # 文字の共通度
         query_chars = set(query_clean)
@@ -266,7 +243,7 @@ class PostalCodeService:
             return 0.0
         
         common_chars = query_chars.intersection(target_chars)
-        return len(common_chars) / len(query_chars) * 0.6
+        return len(common_chars) / len(query_chars)
     
     def _extract_prefecture_city(self, address: str) -> tuple:
         """住所から都道府県と市区町村を抽出"""
